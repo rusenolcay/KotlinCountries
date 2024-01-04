@@ -4,9 +4,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import com.rusen.kotlincountries.R
 import com.rusen.kotlincountries.model.Country
+import com.rusen.kotlincountries.view.FeedFragmentDirections
 
 class CountryAdapter(
     val countryList: ArrayList<Country>
@@ -31,6 +33,11 @@ class CountryAdapter(
 
         holder.view.findViewById<TextView>(R.id.tv_nameCountry).text = country.countryName
         holder.view.findViewById<TextView>(R.id.region).text = country.countryRegion
+
+        holder.view.setOnClickListener {
+            val action = FeedFragmentDirections.actionFeedFragmentToCountryFragment()
+            Navigation.findNavController(it).navigate(action)
+        }
     }
 
     fun updateCountryList(newCountryList: List<Country>){

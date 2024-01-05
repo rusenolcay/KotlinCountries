@@ -1,27 +1,25 @@
 package com.rusen.kotlincountries.adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
-import com.rusen.kotlincountries.R
+import com.rusen.kotlincountries.databinding.ItemCountryBinding
 import com.rusen.kotlincountries.model.Country
+import com.rusen.kotlincountries.util.downloadFromUrl
+import com.rusen.kotlincountries.util.placeholderProgressBar
 import com.rusen.kotlincountries.view.FeedFragmentDirections
 
 class CountryAdapter(
-    val countryList: ArrayList<Country>
+    private val countryList: ArrayList<Country>
 ) : RecyclerView.Adapter<CountryAdapter.CountryViewHolder>() {
 
-    class CountryViewHolder(var view: View) : RecyclerView.ViewHolder(view) {
-
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CountryViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
-        val view = inflater.inflate(R.layout.item_country, parent, false)
-        return CountryViewHolder(view)
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): CountryViewHolder {
+        val binding = ItemCountryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return CountryViewHolder(binding)
     }
 
     override fun getItemCount(): Int {
@@ -29,20 +27,26 @@ class CountryAdapter(
     }
 
     override fun onBindViewHolder(holder: CountryViewHolder, position: Int) {
-        val country = countryList[position]
-
-        holder.view.findViewById<TextView>(R.id.tv_nameCountry).text = country.countryName
-        holder.view.findViewById<TextView>(R.id.region).text = country.countryRegion
-
-        holder.view.setOnClickListener {
-            val action = FeedFragmentDirections.actionFeedFragmentToCountryFragment()
-            Navigation.findNavController(it).navigate(action)
-        }
+        holder.bind(country = countryList[position])
     }
 
-    fun updateCountryList(newCountryList: List<Country>){
+    fun updateCountryList(newCountryList: List<Country>) {
         countryList.clear()
         countryList.addAll(newCountryList)
         notifyDataSetChanged()
+    }
+
+    class CountryViewHolder(private val binding: ItemCountryBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(country: Country) {
+            binding.tvNameCountry.text = country.countryName
+            binding.region.text = country.countryRegion
+            binding.imageview.downloadFromUrl(country.imageUrl, placeholderProgressBar(binding.imageview.context))
+
+            binding.root.setOnClickListener {
+                val action = FeedFragmentDirections.actionFeedFragmentToCountryFragment()
+                Navigation.findNavController(it).navigate(action)
+            }
+        }
     }
 }

@@ -44,7 +44,7 @@ class CountryAdapter(
             binding.imageview.downloadFromUrl(country.imageUrl, placeholderProgressBar(binding.imageview.context))
 
             binding.root.setOnClickListener {
-                val action = FeedFragmentDirections.actionFeedFragmentToCountryFragment()
+                val action = FeedFragmentDirections.actionFeedFragmentToCountryFragment(country.uuid)
                 Navigation.findNavController(it).navigate(action)
             }
         }

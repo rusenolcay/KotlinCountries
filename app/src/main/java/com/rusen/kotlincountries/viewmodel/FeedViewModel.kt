@@ -5,16 +5,18 @@ import androidx.lifecycle.MutableLiveData
 import com.rusen.kotlincountries.model.Country
 import com.rusen.kotlincountries.service.CountryAPIService
 import com.rusen.kotlincountries.service.CountryDatabase
+import com.rusen.kotlincountries.util.CustomSharedPreferences
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.launch
 
-class FeedViewModel(application: Application) : BaseViewModel(application){
+class FeedViewModel(application: Application) : BaseViewModel(application) {
 
     private val countryAPIService = CountryAPIService()
     private val disposable = CompositeDisposable()
+    private var customPreferences = CustomSharedPreferences(getApplication())
 
     val countries = MutableLiveData<List<Country>>()
     val countryError = MutableLiveData<Boolean>()
@@ -33,9 +35,9 @@ class FeedViewModel(application: Application) : BaseViewModel(application){
             countryAPIService.getData()
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(object : DisposableSingleObserver<List<Country>>(){
+                .subscribeWith(object : DisposableSingleObserver<List<Country>>() {
                     override fun onSuccess(t: List<Country>) {
-                       storeInSQLite(t)
+                        storeInSQLite(t)
                     }
 
                     override fun onError(e: Throwable) {
@@ -46,22 +48,25 @@ class FeedViewModel(application: Application) : BaseViewModel(application){
                 })
         )
     }
-    private fun showCountries(countryList: List<Country>){
+
+    private fun showCountries(countryList: List<Country>) {
         countries.value = countryList
         countryError.value = false
         countryLoading.value = false
     }
-     private fun storeInSQLite(list: List<Country>){
-         launch {
-             val dao = CountryDatabase(getApplication()).countryDao()
-             dao.deleteAllCountries()
-             val listLong = dao.insertAll(*list.toTypedArray()) //diziden tek tek hale getiriyor
-             var i = 0
-             while (i < list.size){
-                  list[i].uuid = listLong[i].toInt()
-                 i = i + 1
-              }
-             showCountries(list)
-         }
-     }
+
+    private fun storeInSQLite(list: List<Country>) {
+        launch {
+            val dao = CountryDatabase(getApplication()).countryDao()
+            dao.deleteAllCountries()
+            val listLong = dao.insertAll(*list.toTypedArray()) //diziden tek tek hale getiriyor
+            var i = 0
+            while (i < list.size) {
+                list[i].uuid = listLong[i].toInt()
+                i = i + 1
+            }
+            showCountries(list)
+        }
+        customPreferences.saveTime(System.nanoTime())
+    }
 }

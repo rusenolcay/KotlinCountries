@@ -39,14 +39,17 @@ class CountryAdapter(
     class CountryViewHolder(private val binding: ItemCountryBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(country: Country) {
-            binding.tvNameCountry.text = country.countryName
-            binding.region.text = country.countryRegion
-            binding.imageview.downloadFromUrl(country.imageUrl, placeholderProgressBar(binding.imageview.context))
+            with(binding){
+                tvNameCountry.text = country.countryName
+                region.text = country.countryRegion
+                imageview.downloadFromUrl(country.imageUrl, placeholderProgressBar(binding.imageview.context))
 
-            binding.root.setOnClickListener {
-                val action = FeedFragmentDirections.actionFeedFragmentToCountryFragment(country.uuid)
-                Navigation.findNavController(it).navigate(action)
+                root.setOnClickListener {
+                    val action = FeedFragmentDirections.actionFeedFragmentToCountryFragment(country.uuid)
+                    Navigation.findNavController(it).navigate(action)
+                }
             }
+
         }
     }
 }
